@@ -8,6 +8,8 @@ import customtkinter as ctk
 import tkinter as tk
 from datetime import datetime
 
+from h11 import Data
+
 class Question_maker:
  def __init__(self):
      self.upload_question=[]
@@ -30,18 +32,6 @@ class Question_maker:
  def save_registry(self,registry):
     with open(self.REGISTRY_FILE, 'w') as f:
         json.dump(registry, f, indent=2) 
-#=============================================================================================
- 
-#=============================================================================================
- 
-#=============================================================================================
-    
-
-   
-
-
-#=============================================================================================
-
 
 class Design(Question_maker):
     def __init__(self):
@@ -86,11 +76,15 @@ class Design(Question_maker):
         code = self.generate_code()
         while code in registry:
             code = self.generate_code()
+        
+       
+        os.makedirs("Result", exist_ok=True)
+        os.makedirs("Data", exist_ok=True)
 
         # Save questions to a JSON file
         questions_file = f'questions_{code}.json'
-        with open(questions_file, 'w') as f:
-            json.dump(questions, f, indent=2)
+        with open(os.path.join("Data", "questions.json"), "w") as file:
+          json.dump(questions, file, indent=4)
 
         if not title:
             title = "Untitled Test"
@@ -98,8 +92,8 @@ class Design(Question_maker):
         # Create results CSV file
         titlee = title.strip().replace(' ', '_')
         results_file = f'results_{titlee}.csv'
-        with open(results_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=[
+        with open(os.path.join("Result", results_file), 'w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=[
                 'name', 'score', 'total', 'percentage', 'grade',
                 'answers_given', 'taken_at'
             ])

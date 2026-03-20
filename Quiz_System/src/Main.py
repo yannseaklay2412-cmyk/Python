@@ -1,6 +1,8 @@
-from questionmaker import Design
+from  QuestionMaker import Create_question
+from  QuestionMaker.Create_question import Design
 import customtkinter as ctk
-from Quiz_System.src.Tester.tester import GUI
+from Tester import tester
+from Tester.tester import GUI
 import tkinter as tk
 if __name__ == "__main__":
     root = tk.Tk()
