@@ -12,7 +12,8 @@ from datetime import datetime
 
 class Question_maker:
  def __init__(self):
-     self.upload_question=[]
+     self.upload_question = []
+     self.upload_questions=[]
      base_dir = Path(__file__).parent.parent 
      self.REGISTRY_FILE = str(base_dir / 'test_registry.json')
      self.typein_question=[]
@@ -54,6 +55,7 @@ class Design(Question_maker):
     "text_color": "#050505",     
     
 }   
+    #all button at first page
         self.first_page()
         
         self.start_btn=ctk.CTkButton(self.root,text="Upload Questions from File",font=ctk.CTkFont(size=14,weight="bold"),width=150,height=50,command=self.upload_questions_from_file,**btn_style) 
@@ -84,10 +86,9 @@ class Design(Question_maker):
        
 
         # Save questions to a JSON file
-        base_dir = Path(__file__).parent.parent  # QuestionMaker/ → src/ → Quiz_System/
+        base_dir = Path(__file__).parent.parent 
         data_dir = base_dir / "Data"
         questions_file = data_dir / f"Questions_{code}.json"
-        os.makedirs(data_dir, exist_ok=True)
         with open(questions_file, "w") as file:
              json.dump(questions, file, indent=4)
 
@@ -96,8 +97,10 @@ class Design(Question_maker):
 
         # Create results CSV file
         titlee = title.strip().replace(' ', '_')
-        results_file = f'results_{titlee}.csv'
-        with open(os.path.join("Result", results_file), 'w', newline='') as file:
+        result_dir = Path(__file__).parent.parent / "Result"
+        os.makedirs(result_dir, exist_ok=True)
+        results_file =result_dir / f'results_{titlee}.csv'
+        with open(results_file, 'w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=[
                 'name', 'score', 'total', 'percentage', 'grade',
                 'answers_given', 'taken_at'
@@ -278,8 +281,8 @@ class Design(Question_maker):
              messagebox.showwarning("Warning", "Please enter a valid time!")
              return
          
-    
-         code = self.register_test(self.upload_question,
+         questions = self.upload_questions if self.upload_questions else self.upload_question
+         code = self.register_test(questions,
                                title=title,
                                time_limit=int(time_limit))
 
@@ -287,7 +290,7 @@ class Design(Question_maker):
                 f"Test Created!\n"
                 f"Title: {title}\n"
                 f"Code: {code}\n"
-                f"Questions: {len(self.upload_question)}\n"
+                f"Questions: {len(questions)}\n"
                 f"Time limit: {time_limit} min")
 
          self.first_page()

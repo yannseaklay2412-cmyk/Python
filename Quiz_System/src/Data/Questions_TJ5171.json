@@ -1,0 +1,52 @@
+[
+    {
+        "question": "What is the capital of France?",
+        "options": {
+            "A": "Berlin",
+            "B": "Madrid",
+            "C": "Paris",
+            "D": "Rome"
+        },
+        "answer": "C"
+    },
+    {
+        "question": "How many continents are there on Earth?",
+        "options": {
+            "A": "5",
+            "B": "6",
+            "C": "8",
+            "D": "7"
+        },
+        "answer": "D"
+    },
+    {
+        "question": "What is the largest planet in our solar system?",
+        "options": {
+            "A": "Saturn",
+            "B": "Neptune",
+            "C": "Jupiter",
+            "D": "Uranus"
+        },
+        "answer": "C"
+    },
+    {
+        "question": "What gas do plants absorb from the atmosphere?",
+        "options": {
+            "A": "Oxygen",
+            "B": "Nitrogen",
+            "C": "Carbon Dioxide",
+            "D": "Hydrogen"
+        },
+        "answer": "C"
+    },
+    {
+        "question": "Who wrote the play Romeo and Juliet?",
+        "options": {
+            "A": "Charles Dickens",
+            "B": "William Shakespeare",
+            "C": "Mark Twain",
+            "D": "Homer"
+        },
+        "answer": "B"
+    }
+]

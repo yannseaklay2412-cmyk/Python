@@ -13,7 +13,8 @@ from datetime import datetime
 
 class Tester:
     def __init__(self):
-        self.REGISTRY_FILE = 'test_registry.json'
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        self.REGISTRY_FILE = os.path.join(BASE_DIR, '..', 'test_registry.json')
         self.name = ""
         self.score = 0
         self.answers_given = []
@@ -25,11 +26,14 @@ class Tester:
 
 # ── helper ────────────────────────────────────────────
     def load_registry(self):
-        if not os.path.exists(self.REGISTRY_FILE):
-            print("Fail to load registry file")
-            return {}
-        with open(self.REGISTRY_FILE, 'r') as f:
-            return json.load(f)
+     print(f"Looking for registry at: {os.path.abspath(self.REGISTRY_FILE)}")
+     print(f"Current working directory: {os.getcwd()}")
+    
+     if not os.path.exists(self.REGISTRY_FILE):
+        print("Fail to load registry file")
+        return {}
+     with open(self.REGISTRY_FILE, 'r') as f:
+        return json.load(f)
 
     def get_grade(self, percentage):
         if percentage >= 90:
@@ -71,6 +75,10 @@ class Tester:
         grade, _ = self.get_grade(percentage)
         taken_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         results_file = self.test_info['results_file']
+        if not os.path.isabs(results_file):
+            base_dir = os.path.dirname(os.path.abspath(self.REGISTRY_FILE))
+            results_file = os.path.join(base_dir, results_file)
+
         with open(results_file, 'a', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=[
                 'name', 'score', 'total', 'percentage',
@@ -291,12 +299,13 @@ class GUI:
         """Loads registry and questions for the given code into self.tester.
            Returns True if successful, False if code not found."""
         registry = self.tester.load_registry()
+        normalized_registry = {k.strip().upper(): (k, v) for k, v in registry.items()}
 
-        if code not in registry:
+        if code not in normalized_registry:
             return False
 
         t = self.tester
-        t.test_info = registry[code]
+        t.test_info = normalized_registry[code][1]
 
         with open(t.test_info['questions_file'], 'r') as f:
             t.questions = json.load(f)
