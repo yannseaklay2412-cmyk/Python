@@ -3,17 +3,18 @@ import csv
 import json
 import random
 import string
+from pathlib import Path
 from tkinter import filedialog, messagebox
 import customtkinter as ctk
 import tkinter as tk
 from datetime import datetime
 
-from h11 import Data
 
 class Question_maker:
  def __init__(self):
      self.upload_question=[]
-     self.REGISTRY_FILE = 'test_registry.json' 
+     base_dir = Path(__file__).parent.parent 
+     self.REGISTRY_FILE = str(base_dir / 'test_registry.json')
      self.typein_question=[]
     
   #=============================================================================================   
@@ -79,12 +80,16 @@ class Design(Question_maker):
         
        
         os.makedirs("Result", exist_ok=True)
-        os.makedirs("Data", exist_ok=True)
+        
+       
 
         # Save questions to a JSON file
-        questions_file = f'questions_{code}.json'
-        with open(os.path.join("Data", "questions.json"), "w") as file:
-          json.dump(questions, file, indent=4)
+        base_dir = Path(__file__).parent.parent  # QuestionMaker/ → src/ → Quiz_System/
+        data_dir = base_dir / "Data"
+        questions_file = data_dir / f"Questions_{code}.json"
+        os.makedirs(data_dir, exist_ok=True)
+        with open(questions_file, "w") as file:
+             json.dump(questions, file, indent=4)
 
         if not title:
             title = "Untitled Test"
@@ -103,8 +108,8 @@ class Design(Question_maker):
         registry[code] = {
             'title': title,
             'time limit': time_limit,
-            'questions_file': questions_file,
-            'results_file': results_file,
+            'questions_file': str(questions_file),
+            'results_file': str(results_file),
             'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'total_questions': len(questions)
         }
@@ -113,22 +118,55 @@ class Design(Question_maker):
         return code
 
 
-
-
     #function to  access upload file from file explorer
     def upload_questions_from_file(self):
-     file_path = filedialog.askopenfilename(
+         file_path = filedialog.askopenfilename(
         title="Select a Text File",
         filetypes=[("Text Files", "*.txt")]
     )
-     if  not file_path: 
-        print("Can't Open File.")
-     self.load_questions_from_file(file_path) 
-     if self.upload_question:
-            messagebox.showinfo("Success!", f"{len(self.upload_question)} question(s) loaded successfully!")
-     else:
+         if  not file_path: 
+          print("Can't Open File.")
+          return
+         self.load_questions_from_file(file_path) 
+         if self.upload_questions:
+            messagebox.showinfo("Success!", f"{len(self.upload_questions)} question(s) loaded successfully!")
+            self.info()
+         else:
             messagebox.showwarning("No Questions Found", "No valid questions were found in the file.")
-    
+
+    def load_questions_from_file(self, file_path):
+        self.upload_questions = []
+        
+        if not os.path.exists(file_path):
+            messagebox.showwarning("Not Found", f"File '{file_path}' not found.")
+            return
+        
+        with open(file_path, 'r') as f:
+            content = f.read()
+        
+        blocks = content.strip().split('\n\n') 
+        for block in blocks:
+            lines = [l.strip() for l in block.strip().split('\n') if l.strip()]
+            if len(lines) < 6:
+                continue
+            
+            question_text = lines[0]
+            options = {}
+            answer = None
+            
+            for line in lines[1:]:
+                if line.upper().startswith('ANSWER:'):
+                    answer = line.split(':', 1)[1].strip().upper()
+                elif len(line) >= 3 and line[0].upper() in 'ABCD' and line[1] == ')':
+                    key = line[0].upper()
+                    options[key] = line[2:].strip()
+            
+            if question_text and len(options) == 4 and answer in 'ABCD':
+                self.upload_questions.append({
+                    'question': question_text,
+                    'options': options,
+                    'answer': answer
+                })
     def second(self):
         self.clear_screen()
         self.label = ctk.CTkLabel(self.root, text="How  many question you want to make?", font=ctk.CTkFont(size=20),text_color="#0b0a0b")
@@ -171,16 +209,18 @@ class Design(Question_maker):
        
 
         self.option_entries = {}
-        for option in range(1,5): 
-                entry = ctk.CTkEntry(self.root,
-                                    placeholder_text=f"Option {option}",
-                                    width=200, height=40,
-                                    font=ctk.CTkFont(size=14))
-                entry.pack(padx=(10,200))
-                entry.pack(pady=5)
-                self.option_entries[option] = entry  
+        option_labels = {1: "A", 2: "B", 3: "C", 4: "D"}
 
-        
+        for option in range(1, 5):
+          entry = ctk.CTkEntry(self.root,
+                         placeholder_text=f"Option {option_labels[option]}",
+                         width=200, height=40,
+                         font=ctk.CTkFont(size=14))
+          entry.pack(padx=(10, 200))
+          entry.pack(pady=5)
+          self.option_entries[option_labels[option]] = entry  # ← key is now "A"/"B"/"C"/"D"
+
+            
         self.answer_entry = ctk.CTkEntry(self.root,
                                 placeholder_text="Correct Answer (A/B/C/D)",
                                 width=200, height=40,
